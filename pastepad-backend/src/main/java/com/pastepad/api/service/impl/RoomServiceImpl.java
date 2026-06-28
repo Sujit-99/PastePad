@@ -1,8 +1,10 @@
 package com.pastepad.api.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pastepad.api.dto.RoomResponseDto;
+import com.pastepad.api.dto.WorkspaceResponseDto;
 import com.pastepad.api.entity.Room;
 import com.pastepad.api.entity.WorkSpace;
 import com.pastepad.api.repository.RoomRepository;
@@ -13,7 +15,6 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -51,7 +52,7 @@ public class RoomServiceImpl implements RoomService {
             }
         } while (codeExists);
 
-        // new Room 
+        // New Room 
         Room room = new Room();
         room.setCode(generatedCode);
 
@@ -84,5 +85,23 @@ public class RoomServiceImpl implements RoomService {
         int numericSuffix = random.nextInt(90) + 10; // Guarantees a two-digit range between 10 and 99
         
         return adjective + "-" + noun + "-" + numericSuffix;
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public WorkspaceResponseDto getWorkspaceByRoomCode(String code) {
+        
+        Room room = roomRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Room not found with code: " + code));
+
+        WorkSpace workSpace = room.getWorkSpace();
+        
+        String currentTextContent = (workSpace != null) ? workSpace.getContent() : "";
+
+        return new WorkspaceResponseDto(
+                room.getCode(),
+                currentTextContent,
+                "Successfully fetched active code sync workspace payload."
+        );
     }
 }
