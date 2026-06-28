@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Party Platform // Retro Classic</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-container">
+    <!-- Retro Navigation Deck -->
+    <header class="navbar">
+        <a href="#" class="logo">[PARTY_SYSTEM]</a>
+        <div class="nav-actions">
+            <!-- Functional Modal Trigger Controls -->
+            <button type="button" class="btn btn-secondary btn-login" data-target="loginModal">LOG_IN</button>
+            <button type="button" class="btn btn-primary btn-register" data-target="registerModal">REGISTER</button>
+        </div>
+    </header>
+
+    <!-- Main Command Workspace Area -->
+    <main class="main-content">
+        <section class="action-card">
+            <div class="card-header-bar">COMMAND_PANEL.EXE</div>
+            <div class="card-body">
+                <button type="button" class="btn btn-primary btn-action">HOST PARTY</button>
+                <button type="button" class="btn btn-primary btn-action">JOIN PARTY</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Log In Pop-up Modal Box -->
+<dialog id="loginModal">
+    <div class="modal-header">
+        <h2 class="modal-title">SYSTEM_LOG_IN</h2>
+        <button type="button" class="btn-close" aria-label="Close dialog">×</button>
+    </div>
+    <form method="dialog">
+        <div class="form-group">
+            <label for="login-email">E-MAIL:</label>
+            <input type="email" id="login-email" placeholder="user@domain.net" required>
+        </div>
+        <div class="form-group">
+            <label for="login-password">PASSWORD:</label>
+            <input type="password" id="login-password" placeholder="********" required>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary btn-submit">EXECUTE_LOGIN</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Register Pop-up Modal Box -->
+<dialog id="registerModal">
+    <div class="modal-header">
+        <h2 class="modal-title">CREATE_ACCOUNT</h2>
+        <button type="button" class="btn-close" aria-label="Close dialog">×</button>
+    </div>
+    <form method="dialog">
+        <div class="form-group">
+            <label for="reg-username">USER NAME:</label>
+            <input type="text" id="reg-username" placeholder="RetroRider99" required>
+        </div>
+        <div class="form-group">
+            <label for="reg-email">E-MAIL:</label>
+            <input type="email" id="reg-email" placeholder="user@domain.net" required>
+        </div>
+        <div class="form-group">
+            <label for="reg-password">PASSWORD:</label>
+            <input type="password" id="reg-password" placeholder="********" required>
+        </div>
+        <div class="form-group">
+            <label for="reg-confirm">CONFIRM_PWD:</label>
+            <input type="password" id="reg-confirm" placeholder="********" required>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary btn-submit">INITIALIZE_REG</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Modal Trigger Handler
+        document.querySelectorAll('[data-target]').forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const targetModal = document.getElementById(trigger.getAttribute('data-target'));
+                if (targetModal) targetModal.showModal();
+            });
+        });
+
+        // Close Button Handler
+        document.querySelectorAll('.btn-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', () => {
+                closeBtn.closest('dialog').close();
+            });
+        });
+
+        // Close on Backdrop Click
+        document.querySelectorAll('dialog').forEach(modal => {
+            modal.addEventListener('click', (event) => {
+                const rect = modal.getBoundingClientRect();
+                if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+                    modal.close();
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
