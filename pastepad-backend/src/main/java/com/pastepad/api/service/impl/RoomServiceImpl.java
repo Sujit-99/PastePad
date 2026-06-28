@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pastepad.api.dto.RoomResponseDto;
 import com.pastepad.api.dto.WorkspaceResponseDto;
+import com.pastepad.api.dto.WorkspaceUpdateDto;
 import com.pastepad.api.entity.Room;
 import com.pastepad.api.entity.WorkSpace;
 import com.pastepad.api.repository.RoomRepository;
@@ -82,7 +83,7 @@ public class RoomServiceImpl implements RoomService {
     private String generateReadableToken() {
         String adjective = ADJECTIVES[random.nextInt(ADJECTIVES.length)];
         String noun = NOUNS[random.nextInt(NOUNS.length)];
-        int numericSuffix = random.nextInt(90) + 10; // Guarantees a two-digit range between 10 and 99
+        int numericSuffix = random.nextInt(90) + 10; //Range between 10 and 99
         
         return adjective + "-" + noun + "-" + numericSuffix;
     }
@@ -103,5 +104,36 @@ public class RoomServiceImpl implements RoomService {
                 currentTextContent,
                 "Successfully fetched active code sync workspace payload."
         );
+    }
+    
+    
+    @Override
+    @org.springframework.transaction.annotation.Transactional // Starts an active write transaction block
+    public void updateWorkspaceContent(String roomCode, WorkspaceUpdateDto updateDto) {
+        
+        // Step A: Find the parent Room via the existing findByCode repository abstraction
+        // 🚨 STAGE FOR CUSTOM EXCEPTION: RoomNotFoundException
+        Room room = roomRepository.findByCode(roomCode)
+                .orElseThrow(() -> new RuntimeException("Cannot update workspace. Room code '" + roomCode + "' does not exist."));
+
+        // Step B: Pull down the child object instance cleanly
+        WorkSpace workSpace = room.getWorkSpace();
+        
+        // Core Structural Fallback Safeguard: Ensure a workspace row is present before mutating content fields
+        if (workSpace == null) {
+            workSpace = new WorkSpace();
+            room.setWorkspace(workSpace); // Restores links if an empty room configuration ever presents itself
+        }
+
+        // Step C: Modify the text object state
+        // Overwrites the string contents inside your database row memory block
+        String freshCodePayload = (updateDto.content() != null) ? updateDto.content() : "";
+        workSpace.setContent(freshCodePayload);
+
+        // 💡 REMINDER: No manual repository.save() or workspaceRepository.save() is written here!
+        // Because this method is marked with @Transactional, Spring closes the transaction boundary
+        // when this method exits. Hibernate's engine instantly executes automated "dirty checking", 
+        // detects that the WorkSpace text has mutated, and flushes an optimized SQL 'UPDATE' statement 
+        // to your laptop storage drive automatically.
     }
 }
